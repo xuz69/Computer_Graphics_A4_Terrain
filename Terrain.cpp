@@ -1,0 +1,96 @@
+#ifdef __APPLE__
+#  include <OpenGL/gl.h>
+#  include <OpenGL/glu.h>
+#  include <GLUT/glut.h>
+#else
+#  include <GL/gl.h>
+#  include <GL/glu.h>
+#  include <GL/freeglut.h>
+#endif
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <iostream>
+#include <vector>
+#include <math.h>
+#include "Heightmap.hpp"
+
+vector< vector<Point3D> > terrain_points;
+
+//perspective setup
+GLdouble eye[] = { 50, 100, 100 };
+GLdouble lookAt[] = { 50, 0, 50 };
+GLdouble up[] = { 0, 1, 0 };
+
+int terrain_size = 100;
+
+void createHeightmap(){
+    Heightmap(terrain_points,terrain_size);
+}
+
+void drawTerrain(){
+    for(int i = 0; i < terrain_size-1; i++){
+        for(int j = 0; j < terrain_size -1; j++){
+            glColor3f(0.0f, 1.0f, 0.0f);
+            glBegin(GL_LINE_LOOP);
+                glVertex3f(terrain_points[i][j].mX,terrain_points[i][j].mY,terrain_points[i][j].mZ);
+                glVertex3f(terrain_points[i+1][j].mX,terrain_points[i+1][j].mY,terrain_points[i+1][j].mZ);
+                glVertex3f(terrain_points[i+1][j+1].mX,terrain_points[i+1][j+1].mY,terrain_points[i+1][j+1].mZ);
+                glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY,terrain_points[i][j+1].mZ);
+            glEnd();
+        }
+    }
+}
+
+void display(){
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glLoadIdentity();
+    gluLookAt(eye[0], eye[1], eye[2], lookAt[0], lookAt[1], lookAt[2],up[0],up[1],up[2]);
+
+    drawTerrain();
+
+    glutSwapBuffers();
+}
+
+void FPS(int val){
+    glutPostRedisplay();
+    glutTimerFunc(17, FPS, 0);
+}
+
+/* Reshape function */
+void handleReshape(int w, int h) {
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(45, 1, 1, 1000);
+
+    glMatrixMode(GL_MODELVIEW);
+    glViewport(0, 0, w, h);
+}
+
+void callbackInit(){
+    glutDisplayFunc(display);
+    glutReshapeFunc(handleReshape);
+    glutTimerFunc(0, FPS, 0);
+}
+
+int main(int argc, char** argv) {
+    createHeightmap();
+    glutInit(&argc, argv);
+    glutInitWindowSize(600,600);
+    glutInitWindowPosition(300,300);
+    glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH);
+    glutCreateWindow("Terrain");
+
+    callbackInit();
+
+    glEnable(GL_DEPTH_TEST);
+    /* using backface culling 
+    glFrontFace(GL_CW);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);*/
+
+
+    glutMainLoop();
+
+    return 0;
+}
