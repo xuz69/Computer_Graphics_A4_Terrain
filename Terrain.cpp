@@ -19,17 +19,48 @@ vector< vector<Point3D> > terrain_points;
 vector< vector<float> > points_color;
 
 
-int terrain_size = 50;
+int terrain_size = 200;
 
 double pi = 3.14159265;
 
 int wireFrame = 0;
 
+bool lightOn = false;
+
+bool is_zero = true;
+
+bool is_flat_shading = false;
+
+/*
+ * Two sets of light properties
+ *
+ * Positions of two lights:
+ *      - Two lights is above oppsite corners of the terrain.
+ *      - The terrain is centered at (0,0,0), so (x, z) value of two corners will be (terrain_size/2,terrain_size/2) and (-terrain_size/2,-terrain_size/2)
+ *
+ */
+GLfloat light_pos[2][4] = {
+    {terrain_size/2,50,terrain_size/2,1}, //light0 position
+    {-terrain_size/2,50,-terrain_size/2,1} //light1 position
+};
+GLfloat amb[2][4] = {
+    { 1, 1, 1, 1 }, //light0
+    { 1, 1, 1, 1 } //light1
+};
+GLfloat diff[2][4] = {
+    { 1, 0, 0, 1 },//light0
+    { 0, 0, 1, 1 } //light1
+};
+GLfloat spec[2][4] = {
+    { 1, 1, 1, 1 },//light0
+    { 1, 1, 1, 1 } //light1
+};
+
 
 //perspective setup
-GLdouble eye[] = { 1.5*terrain_size, 50,  1.5*terrain_size};
-GLdouble lookAt[] = { 0 , 0, 0 };
-GLdouble up[] = { 0, 1, 0 };
+GLdouble eye[] = {0,0,0}; //eye position will be setted in the init() function
+GLdouble lookAt[] = {0,0,0};
+GLdouble up[] = {0,1,0};
 
 
 void init(void){
@@ -38,19 +69,20 @@ void init(void){
     
     printf("Please enter the size of Terrain(number between 50 and 300):\n");
     scanf("%d", &terrain_size);
+    /* eye position based on the terrain size entered by the user*/
+    eye[0] = terrain_size*1.5;
+    eye[1] = 50;
+    eye[2] = terrain_size*1.5;
     
     Heightmap(terrain_points,points_color,terrain_size);
-    glClearColor(0, 0, 0, 0);
-    
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(45, 1, 1, 500);
 }
 
 void DrawTerrainInitMode(){
     for(int i = 0; i < terrain_size-1; i++){
         for(int j = 0; j < terrain_size -1; j++){
+            Vec3D face_normal = Vec3D::normal(terrain_points[i][j],terrain_points[i][j+1],terrain_points[i+1][j]); // face normal determined by three points
             glBegin(GL_QUADS);
+            glNormal3f(face_normal.mX,face_normal.mY,face_normal.mZ);
             glColor3f(points_color[i][j],points_color[i][j],points_color[i][j]);
             glVertex3f(terrain_points[i][j].mX,terrain_points[i][j].mY,terrain_points[i][j].mZ);
             glColor3f(points_color[i][j+1],points_color[i][j+1],points_color[i][j+1]);
@@ -67,8 +99,10 @@ void DrawTerrainInitMode(){
 void drawTerrainWireMode(){
     for(int i = 0; i < terrain_size-1; i++){
         for(int j = 0; j < terrain_size -1; j++){
+            Vec3D face_normal = Vec3D::normal(terrain_points[i][j],terrain_points[i][j+1],terrain_points[i+1][j]);
             glColor3f(0.0f, 1.0f, 0.0f);
             glBegin(GL_LINE_LOOP);
+            glNormal3f(face_normal.mX,face_normal.mY,face_normal.mZ);
             glVertex3f(terrain_points[i][j].mX,terrain_points[i][j].mY,terrain_points[i][j].mZ);
             glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY,terrain_points[i][j+1].mZ);
             glVertex3f(terrain_points[i+1][j+1].mX,terrain_points[i+1][j+1].mY,terrain_points[i+1][j+1].mZ);
@@ -82,7 +116,9 @@ void drawTerrainWireMode(){
 void DrawTerrainPolyWireMode(){
     for(int i = 0; i < terrain_size-1; i++){
         for(int j = 0; j < terrain_size -1; j++){
+            Vec3D face_normal = Vec3D::normal(terrain_points[i][j],terrain_points[i][j+1],terrain_points[i+1][j]);
             glBegin(GL_QUADS);
+            glNormal3f(face_normal.mX,face_normal.mY,face_normal.mZ);
             glColor3f(points_color[i][j],points_color[i][j],points_color[i][j]);
             glVertex3f(terrain_points[i][j].mX,terrain_points[i][j].mY,terrain_points[i][j].mZ);
             glColor3f(points_color[i][j+1],points_color[i][j+1],points_color[i][j+1]);
@@ -104,6 +140,14 @@ void DrawTerrainPolyWireMode(){
 }
 
 void display(){
+    /* Setting light properties*/
+    for(int i = 0; i < 2; i++){
+        glLightfv(GL_LIGHT0+i,GL_POSITION,light_pos[i]);
+        glLightfv(GL_LIGHT0+i,GL_DIFFUSE,diff[i]);
+        glLightfv(GL_LIGHT0+i,GL_AMBIENT,amb[i]);
+        glLightfv(GL_LIGHT0+i,GL_SPECULAR,spec[i]);
+    }
+    
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
     gluLookAt(eye[0], eye[1], eye[2], lookAt[0], lookAt[1], lookAt[2],up[0],up[1],up[2]);
@@ -160,21 +204,108 @@ void special(int key, int x, int y){
     }
 }
 
+/*
+ * Reset Function
+ */
+void reset(){
+    terrain_points.clear();
+    points_color.clear();
+    wireFrame = 0;
+    lightOn = false;
+    is_zero = true;
+    
+    Heightmap(terrain_points,points_color,terrain_size);// generate a new random terrain using the heightmap generation algorithm
+    
+    eye[0] = terrain_size*1.5;
+    eye[1] = 50;
+    eye[2] = terrain_size*1.5;
+    
+    
+}
+
 void kbd(unsigned char key, int x, int y){
     switch(key){
-            // Esc Keyboard for exit the particles system
-        case 27:{
-            std::cout << "Hello world, good bye Praticles! \n";
-        }
-            // Key 'q' for exit the particles system
-        case 'q': {
+        case 27:
+        case 'q':
+        case 'Q':
+            std::cout << "Terrain Program closed! \n";
             exit(0);
             break;
-        }
-            
-        case 'w': {
+        case 'W':
             wireFrame += 1;
-        }
+            break;
+        case 'L':
+        case 'l':
+            lightOn = !lightOn;
+            if(lightOn){
+                std::cout << "Light turn on!\n";
+            }
+            else{
+                std::cout << "Light turn off!\n";
+            }
+            break;
+        case '0':
+            is_zero = true;
+            std::cout << "Changed to light0!\n";
+            break;
+        case '1':
+            is_zero = false;
+            std::cout << "Changed to light1!\n";
+            break;
+        case 'd':
+            if(is_zero){
+                light_pos[0][0] += 10;
+                std::cout << "Light0 move to right along x-axis!\n";
+            }
+            else{
+                light_pos[1][0] += 10;
+                std::cout << "Light1 move to right along x-axis!\n";
+            }
+            break;
+        case 'a':
+            if(is_zero){
+                light_pos[0][0] -= 10;
+                std::cout << "Light0 move to left along x-axis!\n";
+            }
+            else{
+                light_pos[1][0] -= 10;
+                std::cout << "Light1 move to left along x-axis!\n";
+            }
+            break;
+        case 'w':
+            if(is_zero){
+                light_pos[0][1] += 10;
+                std::cout << "Light0 move to up along y-axis!\n";
+            }
+            else{
+                light_pos[1][1] += 10;
+                std::cout << "Light1 move to up along y-axis!\n";
+            }
+            break;
+        case 's':
+            if(is_zero){
+                light_pos[0][1] -= 10;
+                std::cout << "Light0 move to down along y-axis!\n";
+            }
+            else{
+                light_pos[1][1] -= 10;
+                std::cout << "Light1 move to down along y-axis!\n";
+            }
+            break;
+        case 'r':
+        case 'R':
+            reset();
+            break;
+        case 'f':
+        case 'F':
+            is_flat_shading = !is_flat_shading;
+            if(is_flat_shading){
+                std::cout << "Changed to Flat Shading Mode!\n";
+            }
+            else{
+                std::cout << "Changed to Gouraud Shading Mode!\n";
+            }
+            break;
         default:
             break;
     }
@@ -182,6 +313,20 @@ void kbd(unsigned char key, int x, int y){
 
 void FPS(int val){
     glutPostRedisplay();
+    if(lightOn){
+        glEnable(GL_LIGHTING);
+        glEnable(GL_LIGHT0);
+        glEnable(GL_LIGHT1);
+    }
+    else{
+        glDisable(GL_LIGHTING);
+    }
+    if(is_flat_shading){
+        glShadeModel(GL_FLAT);
+    }
+    else{
+        glShadeModel(GL_SMOOTH);
+    }
     glutTimerFunc(17, FPS, 0);
 }
 
@@ -204,13 +349,13 @@ void callbackInit(){
 }
 
 int main(int argc, char** argv) {
+    init();
     glutInit(&argc, argv);
     glutInitWindowSize(600,600);
     glutInitWindowPosition(300,300);
     glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH);
     glutCreateWindow("Terrain");
     
-    init();
     
     callbackInit();
     
