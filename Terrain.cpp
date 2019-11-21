@@ -20,23 +20,25 @@ vector< vector<float> > points_color;
 
 
 int terrain_size = 50;
+
 double pi = 3.14159265;
 
 int wireFrame = 0;
 
 
 //perspective setup
-GLdouble eye[] = { terrain_size+50, 50, terrain_size+50};
+GLdouble eye[] = { 1.5*terrain_size, 50,  1.5*terrain_size};
 GLdouble lookAt[] = { 0 , 0, 0 };
 GLdouble up[] = { 0, 1, 0 };
+
 
 void init(void){
     
     printf("Welcome to Terrain Generator!\n");
-
+    
     printf("Please enter the size of Terrain(number between 50 and 300):\n");
     scanf("%d", &terrain_size);
-
+    
     Heightmap(terrain_points,points_color,terrain_size);
     glClearColor(0, 0, 0, 0);
     
@@ -45,32 +47,57 @@ void init(void){
     gluPerspective(45, 1, 1, 500);
 }
 
-void drawTerrain(){
-    for(int i = 0; i < terrain_size-1; i++){
-        for(int j = 0; j < terrain_size -1; j++){
-            glColor3f(0.0f, 1.0f, 0.0f);
-            glBegin(GL_LINE_LOOP);
-            glVertex3f(terrain_points[i][j].mX,terrain_points[i][j].mY,terrain_points[i][j].mZ);
-            glVertex3f(terrain_points[i+1][j].mX,terrain_points[i+1][j].mY,terrain_points[i+1][j].mZ);
-            glVertex3f(terrain_points[i+1][j+1].mX,terrain_points[i+1][j+1].mY,terrain_points[i+1][j+1].mZ);
-            glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY,terrain_points[i][j+1].mZ);
-            glEnd();
-        }
-    }
-}
-
-void initDrawTerrain(){
+void DrawTerrainInitMode(){
     for(int i = 0; i < terrain_size-1; i++){
         for(int j = 0; j < terrain_size -1; j++){
             glBegin(GL_QUADS);
             glColor3f(points_color[i][j],points_color[i][j],points_color[i][j]);
             glVertex3f(terrain_points[i][j].mX,terrain_points[i][j].mY,terrain_points[i][j].mZ);
-            glColor3f(points_color[i+1][j],points_color[i+1][j],points_color[i+1][j]);
-            glVertex3f(terrain_points[i+1][j].mX,terrain_points[i+1][j].mY,terrain_points[i+1][j].mZ);
-            glColor3f(points_color[i+1][j+1],points_color[i+1][j+1],points_color[i+1][j+1]);
-            glVertex3f(terrain_points[i+1][j+1].mX,terrain_points[i+1][j+1].mY,terrain_points[i+1][j+1].mZ);
             glColor3f(points_color[i][j+1],points_color[i][j+1],points_color[i][j+1]);
             glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY,terrain_points[i][j+1].mZ);
+            glColor3f(points_color[i+1][j+1],points_color[i+1][j+1],points_color[i+1][j+1]);
+            glVertex3f(terrain_points[i+1][j+1].mX,terrain_points[i+1][j+1].mY,terrain_points[i+1][j+1].mZ);
+            glColor3f(points_color[i+1][j],points_color[i+1][j],points_color[i+1][j]);
+            glVertex3f(terrain_points[i+1][j].mX,terrain_points[i+1][j].mY,terrain_points[i+1][j].mZ);
+            glEnd();
+        }
+    }
+}
+
+void drawTerrainWireMode(){
+    for(int i = 0; i < terrain_size-1; i++){
+        for(int j = 0; j < terrain_size -1; j++){
+            glColor3f(0.0f, 1.0f, 0.0f);
+            glBegin(GL_LINE_LOOP);
+            glVertex3f(terrain_points[i][j].mX,terrain_points[i][j].mY,terrain_points[i][j].mZ);
+            glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY,terrain_points[i][j+1].mZ);
+            glVertex3f(terrain_points[i+1][j+1].mX,terrain_points[i+1][j+1].mY,terrain_points[i+1][j+1].mZ);
+            glVertex3f(terrain_points[i+1][j].mX,terrain_points[i+1][j].mY,terrain_points[i+1][j].mZ);
+            glEnd();
+        }
+    }
+}
+
+
+void DrawTerrainPolyWireMode(){
+    for(int i = 0; i < terrain_size-1; i++){
+        for(int j = 0; j < terrain_size -1; j++){
+            glBegin(GL_QUADS);
+            glColor3f(points_color[i][j],points_color[i][j],points_color[i][j]);
+            glVertex3f(terrain_points[i][j].mX,terrain_points[i][j].mY,terrain_points[i][j].mZ);
+            glColor3f(points_color[i][j+1],points_color[i][j+1],points_color[i][j+1]);
+            glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY,terrain_points[i][j+1].mZ);
+            glColor3f(points_color[i+1][j+1],points_color[i+1][j+1],points_color[i+1][j+1]);
+            glVertex3f(terrain_points[i+1][j+1].mX,terrain_points[i+1][j+1].mY,terrain_points[i+1][j+1].mZ);
+            glColor3f(points_color[i+1][j],points_color[i+1][j],points_color[i+1][j]);
+            glVertex3f(terrain_points[i+1][j].mX,terrain_points[i+1][j].mY,terrain_points[i+1][j].mZ);
+            glEnd();
+            glColor3f(0.0f, 1.0f, 0.0f);
+            glBegin(GL_LINE_LOOP);
+            glVertex3f(terrain_points[i][j].mX,terrain_points[i][j].mY+0.05,terrain_points[i][j].mZ);
+            glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY+0.05,terrain_points[i][j+1].mZ);
+            glVertex3f(terrain_points[i+1][j+1].mX,terrain_points[i+1][j+1].mY+0.05,terrain_points[i+1][j+1].mZ);
+            glVertex3f(terrain_points[i+1][j].mX,terrain_points[i+1][j].mY+0.05,terrain_points[i+1][j].mZ);
             glEnd();
         }
     }
@@ -82,12 +109,11 @@ void display(){
     gluLookAt(eye[0], eye[1], eye[2], lookAt[0], lookAt[1], lookAt[2],up[0],up[1],up[2]);
     
     if (wireFrame % 3 == 0) {
-        initDrawTerrain();
+        DrawTerrainInitMode();
     }else if (wireFrame % 3 == 1) {
-        drawTerrain();
+        drawTerrainWireMode();
     }else if (wireFrame % 3 == 2) {
-        initDrawTerrain();
-        drawTerrain();
+        DrawTerrainPolyWireMode();
     }
     
     glutSwapBuffers();
@@ -137,20 +163,20 @@ void special(int key, int x, int y){
 void kbd(unsigned char key, int x, int y){
     switch(key){
             // Esc Keyboard for exit the particles system
-            case 27:{
-                std::cout << "Hello world, good bye Praticles! \n";
-            }
+        case 27:{
+            std::cout << "Hello world, good bye Praticles! \n";
+        }
             // Key 'q' for exit the particles system
-            case 'q': {
-                exit(0);
-                break;
-            }
+        case 'q': {
+            exit(0);
+            break;
+        }
             
-            case 'w': {
-                wireFrame += 1;
-            }
-            default:
-                break;
+        case 'w': {
+            wireFrame += 1;
+        }
+        default:
+            break;
     }
 }
 
@@ -173,7 +199,7 @@ void callbackInit(){
     glutDisplayFunc(display);
     glutReshapeFunc(handleReshape);
     glutSpecialFunc(special);
-    glutKeyboardFunc(kbd); // Keyboards
+    glutKeyboardFunc(kbd);
     glutTimerFunc(0, FPS, 0);
 }
 
@@ -190,7 +216,7 @@ int main(int argc, char** argv) {
     
     glEnable(GL_DEPTH_TEST);
     /* using backface culling
-     glFrontFace(GL_CW);
+     glFrontFace(GL_CCW);
      glEnable(GL_CULL_FACE);
      glCullFace(GL_BACK);*/
     
