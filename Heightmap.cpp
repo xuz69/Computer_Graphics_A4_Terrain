@@ -15,7 +15,7 @@ Heightmap::Heightmap(vector<vector<Point3D> > & two_d_array_points, vector<vecto
         points.clear();
         colors.clear();
         for(int z = 0; z < this->size; z++){
-            points.push_back(Point3D(x,0,z));
+            points.push_back(Point3D(x-this->size/2,0,z-this->size/2));
             colors.push_back(0.0);
         }
         two_d_array_points.push_back(points);
@@ -34,8 +34,8 @@ Heightmap::Heightmap(vector<vector<Point3D> > & two_d_array_points, vector<vecto
      */
     srand((int)time(NULL));
     for(int i = 0; i < number_circle; i++){
-        int c_x = rand() % (this->size-1);
-        int c_z = rand() % (this->size-1);
+        int c_x = rand() % (this->size) - this->size/2;
+        int c_z = rand() % (this->size) - this->size/2;
         int disp = rand() % 30 - 15;
         int c_size = rand() % 20 + 10;
         

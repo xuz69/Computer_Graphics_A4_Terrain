@@ -20,10 +20,12 @@ vector< vector<float> > points_color;
 
 
 int terrain_size = 50;
+double pi = 3.14159265;
+
 
 //perspective setup
 GLdouble eye[] = { terrain_size+50, 50, terrain_size+50};
-GLdouble lookAt[] = { terrain_size/2 , 0, terrain_size/2 };
+GLdouble lookAt[] = { 0 , 0, 0 };
 GLdouble up[] = { 0, 1, 0 };
 
 void createHeightmap(){
@@ -71,6 +73,47 @@ void display(){
     glutSwapBuffers();
 }
 
+/*
+ * Special key functions
+ *
+ * 1. Right and Left arrow: rotate about y-axis
+ *      a. right arrow: rotate about y-axis in CW
+ *      b. left arrow: rotate about y-axis in CCW
+ *
+ * 1. Top and down arrow: rotate about x-axis
+ *      a. up arrow: rotate about x-axis in CW
+ *      b. down arrow: rotate about y-axis in CCW
+ *
+ */
+void special(int key, int x, int y){
+    double eye_x = eye[0];
+    double eye_y = eye[1];
+    double eye_z = eye[2];
+    double rotate_angle = 5.0 * pi /180 ;
+    switch(key){
+        case GLUT_KEY_RIGHT: //right rotate 5 degrees about the y-axis
+            eye[0] = eye_x*cos(rotate_angle)+eye_z*sin(rotate_angle);
+            eye[2] = eye_z*cos(rotate_angle)-eye_x*sin(rotate_angle);
+            std::cout << "Rotate the camera position about y-axis in CW by 5 degrees!\n";
+            break;
+        case GLUT_KEY_LEFT: //left rotate 5 degrees about the y-axis
+            eye[0] = eye_x*cos(-rotate_angle)+eye_z*sin(-rotate_angle);
+            eye[2] = eye_z*cos(-rotate_angle)-eye_x*sin(-rotate_angle);
+            std::cout << "Rotate the camera position about y-axis in CCW by 5 degrees!\n";
+            break;
+        case GLUT_KEY_UP: //up rotate 5 degrees about the x-axis
+            std::cout << "Rotate the camera position about x-axis in CW by 5 degrees!\n";
+            eye[1] = eye_y*cos(-rotate_angle)-eye_z*sin(-rotate_angle);
+            eye[2] = eye_y*sin(-rotate_angle)+eye_z*cos(-rotate_angle);
+            break;
+        case GLUT_KEY_DOWN: //down rotate 5 degrees about the x-axis
+            std::cout << "Rotate the camera position about x-axis in CCW by 5 degrees!\n";
+            eye[1] = eye_y*cos(rotate_angle)-eye_z*sin(rotate_angle);
+            eye[2] = eye_y*sin(rotate_angle)+eye_z*cos(rotate_angle);
+            break;
+    }
+}
+
 void FPS(int val){
     glutPostRedisplay();
     glutTimerFunc(17, FPS, 0);
@@ -89,6 +132,7 @@ void handleReshape(int w, int h) {
 void callbackInit(){
     glutDisplayFunc(display);
     glutReshapeFunc(handleReshape);
+    glutSpecialFunc(special);
     glutTimerFunc(0, FPS, 0);
 }
 
