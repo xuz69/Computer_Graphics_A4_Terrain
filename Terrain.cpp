@@ -22,14 +22,27 @@ vector< vector<float> > points_color;
 int terrain_size = 50;
 double pi = 3.14159265;
 
+int wireFrame = 0;
+
 
 //perspective setup
 GLdouble eye[] = { terrain_size+50, 50, terrain_size+50};
 GLdouble lookAt[] = { 0 , 0, 0 };
 GLdouble up[] = { 0, 1, 0 };
 
-void createHeightmap(){
+void init(void){
+    
+    printf("Welcome to Terrain Generator!\n");
+
+    printf("Please enter the size of Terrain(number between 50 and 300):\n");
+    scanf("%d", &terrain_size);
+
     Heightmap(terrain_points,points_color,terrain_size);
+    glClearColor(0, 0, 0, 0);
+    
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(45, 1, 1, 500);
 }
 
 void drawTerrain(){
@@ -68,7 +81,14 @@ void display(){
     glLoadIdentity();
     gluLookAt(eye[0], eye[1], eye[2], lookAt[0], lookAt[1], lookAt[2],up[0],up[1],up[2]);
     
-    initDrawTerrain();
+    if (wireFrame % 3 == 0) {
+        initDrawTerrain();
+    }else if (wireFrame % 3 == 1) {
+        drawTerrain();
+    }else if (wireFrame % 3 == 2) {
+        initDrawTerrain();
+        drawTerrain();
+    }
     
     glutSwapBuffers();
 }
@@ -114,6 +134,26 @@ void special(int key, int x, int y){
     }
 }
 
+void kbd(unsigned char key, int x, int y){
+    switch(key){
+            // Esc Keyboard for exit the particles system
+            case 27:{
+                std::cout << "Hello world, good bye Praticles! \n";
+            }
+            // Key 'q' for exit the particles system
+            case 'q': {
+                exit(0);
+                break;
+            }
+            
+            case 'w': {
+                wireFrame += 1;
+            }
+            default:
+                break;
+    }
+}
+
 void FPS(int val){
     glutPostRedisplay();
     glutTimerFunc(17, FPS, 0);
@@ -133,16 +173,18 @@ void callbackInit(){
     glutDisplayFunc(display);
     glutReshapeFunc(handleReshape);
     glutSpecialFunc(special);
+    glutKeyboardFunc(kbd); // Keyboards
     glutTimerFunc(0, FPS, 0);
 }
 
 int main(int argc, char** argv) {
-    createHeightmap();
     glutInit(&argc, argv);
     glutInitWindowSize(600,600);
     glutInitWindowPosition(300,300);
     glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH);
     glutCreateWindow("Terrain");
+    
+    init();
     
     callbackInit();
     
