@@ -58,6 +58,20 @@ Vec3D Vec3D::add(Vec3D other){
     return Vec3D(this->mX+other.mX, this->mY+other.mY, this->mZ+other.mZ);
 }
 
+
 Vec3D Vec3D::createVector(Point3D p1, Point3D p2){
     return Vec3D(p2.mX-p1.mX, p2.mY-p1.mY, p2.mZ-p1.mZ);
+}
+
+Vec3D Vec3D::crossProduct(Vec3D p, Vec3D q){
+    return  Vec3D(p.mY * q.mZ - p.mZ * p.mY,
+                 -p.mX * q.mZ + p.mZ * q.mX,
+                 p.mX * q.mY - p.mY * q.mX).normalize();
+}
+
+Vec3D Vec3D::normal(Point3D a, Point3D b, Point3D c){
+    Vec3D x = Vec3D::createVector(a, b);
+    Vec3D y = Vec3D::createVector(a, c);
+    
+    return Vec3D::crossProduct(x, y);
 }
