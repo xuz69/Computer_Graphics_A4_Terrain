@@ -10,7 +10,7 @@ public:
     float mX;
     float mY;
     float mZ;
-
+    
     float distanceTo(Point3D other);
     float fastDistanceTo(Point3D other);
 };
@@ -22,16 +22,16 @@ public:
     float mX;
     float mY;
     float mZ;
-
+    
     float length();
     Vec3D normalize();
     Vec3D multiply(float scalar);
     Point3D movePoint(Point3D source);
     Vec3D add(Vec3D other);
     
-    Vec3D crossProduct(Vec3D p, Vec3D q);
+    static Vec3D crossProduct(Vec3D p, Vec3D q);
     
-    Vec3D normal(Point3D a, Point3D b, Point3D c);
+    static Vec3D normal(Point3D a, Point3D b, Point3D c);
     
     static Vec3D createVector(Point3D p1, Point3D p2);
 };
