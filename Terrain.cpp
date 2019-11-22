@@ -25,6 +25,8 @@ double pi = 3.14159265;
 
 int wireFrame = 0;
 
+int polygan = 0;
+
 bool lightOn = false;
 
 bool is_zero = true;
@@ -139,6 +141,107 @@ void DrawTerrainPolyWireMode(){
     }
 }
 
+
+void DrawTerrainInitTriMode(){
+    for(int i = 0; i < terrain_size-1; i++){
+        for(int j = 0; j < terrain_size -1; j++){
+           // Vec3D face_normal = Vec3D::normal(terrain_points[i][j],terrain_points[i][j+1],terrain_points[i+1][j]); // face normal determined by three points
+            glBegin(GL_TRIANGLES);
+            // glNormal3f(face_normal.mX,face_normal.mY,face_normal.mZ);
+            glColor3f(points_color[i][j],points_color[i][j],points_color[i][j]);
+            glVertex3f(terrain_points[i][j].mX,terrain_points[i][j].mY,terrain_points[i][j].mZ);
+            
+            glColor3f(points_color[i][j+1],points_color[i][j+1],points_color[i][j+1]);
+            glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY,terrain_points[i][j+1].mZ);
+            
+            
+            glColor3f(points_color[i+1][j],points_color[i+1][j],points_color[i+1][j]);
+            glVertex3f(terrain_points[i+1][j].mX,terrain_points[i+1][j].mY,terrain_points[i+1][j].mZ);
+            
+            
+            // Second Triangle
+            
+            glColor3f(points_color[i][j+1],points_color[i][j+1],points_color[i][j+1]);
+            glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY,terrain_points[i][j+1].mZ);
+            
+            glColor3f(points_color[i+1][j+1],points_color[i+1][j+1],points_color[i+1][j+1]);
+            glVertex3f(terrain_points[i+1][j+1].mX,terrain_points[i+1][j+1].mY,terrain_points[i+1][j+1].mZ);
+            
+            glColor3f(points_color[i+1][j],points_color[i+1][j],points_color[i+1][j]);
+            glVertex3f(terrain_points[i+1][j].mX,terrain_points[i+1][j].mY,terrain_points[i+1][j].mZ);
+            glEnd();
+        }
+    }
+}
+
+
+void drawTerrainTriWireMode(){
+    for(int i = 0; i < terrain_size-1; i++){
+        for(int j = 0; j < terrain_size -1; j++){
+            //Vec3D face_normal = Vec3D::normal(terrain_points[i][j],terrain_points[i][j+1],terrain_points[i+1][j]);
+            glColor3f(0.0f, 1.0f, 0.0f);
+            glBegin(GL_LINE_LOOP);
+            //glNormal3f(face_normal.mX,face_normal.mY,face_normal.mZ);
+            glVertex3f(terrain_points[i][j].mX,terrain_points[i][j].mY,terrain_points[i][j].mZ);
+            glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY,terrain_points[i][j+1].mZ);
+            glVertex3f(terrain_points[i+1][j].mX,terrain_points[i+1][j].mY,terrain_points[i+1][j].mZ);
+            
+            //glNormal3f(face_normal.mX,face_normal.mY,face_normal.mZ);
+            glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY,terrain_points[i][j+1].mZ);
+            glVertex3f(terrain_points[i+1][j+1].mX,terrain_points[i+1][j+1].mY,terrain_points[i+1][j+1].mZ);
+            glVertex3f(terrain_points[i+1][j].mX,terrain_points[i+1][j].mY,terrain_points[i+1][j].mZ);
+            glEnd();
+        }
+    }
+}
+
+
+void DrawTerrainTriPolyWireMode(){
+    for(int i = 0; i < terrain_size-1; i++){
+        for(int j = 0; j < terrain_size -1; j++){
+            //Vec3D face_normal = Vec3D::normal(terrain_points[i][j],terrain_points[i][j+1],terrain_points[i+1][j]);
+            glBegin(GL_TRIANGLES);
+            // glNormal3f(face_normal.mX,face_normal.mY,face_normal.mZ);
+            glColor3f(points_color[i][j],points_color[i][j],points_color[i][j]);
+            glVertex3f(terrain_points[i][j].mX,terrain_points[i][j].mY,terrain_points[i][j].mZ);
+            
+            glColor3f(points_color[i][j+1],points_color[i][j+1],points_color[i][j+1]);
+            glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY,terrain_points[i][j+1].mZ);
+            
+            
+            glColor3f(points_color[i+1][j],points_color[i+1][j],points_color[i+1][j]);
+            glVertex3f(terrain_points[i+1][j].mX,terrain_points[i+1][j].mY,terrain_points[i+1][j].mZ);
+            
+            
+            // Second Triangle
+            
+            glColor3f(points_color[i][j+1],points_color[i][j+1],points_color[i][j+1]);
+            glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY,terrain_points[i][j+1].mZ);
+            
+            glColor3f(points_color[i+1][j+1],points_color[i+1][j+1],points_color[i+1][j+1]);
+            glVertex3f(terrain_points[i+1][j+1].mX,terrain_points[i+1][j+1].mY,terrain_points[i+1][j+1].mZ);
+            
+            glColor3f(points_color[i+1][j],points_color[i+1][j],points_color[i+1][j]);
+            glVertex3f(terrain_points[i+1][j].mX,terrain_points[i+1][j].mY,terrain_points[i+1][j].mZ);
+            glEnd();
+            
+            glColor3f(0.0f, 1.0f, 0.0f);
+            glBegin(GL_LINE_LOOP);
+            //glNormal3f(face_normal.mX,face_normal.mY,face_normal.mZ);
+            glVertex3f(terrain_points[i][j].mX,terrain_points[i][j].mY+0.05,terrain_points[i][j].mZ);
+            glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY+0.05,terrain_points[i][j+1].mZ);
+            glVertex3f(terrain_points[i+1][j].mX,terrain_points[i+1][j].mY+0.05,terrain_points[i+1][j].mZ);
+            
+            //glNormal3f(face_normal.mX,face_normal.mY,face_normal.mZ);
+            glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY+0.05,terrain_points[i][j+1].mZ);
+            glVertex3f(terrain_points[i+1][j+1].mX,terrain_points[i+1][j+1].mY+0.05,terrain_points[i+1][j+1].mZ);
+            glVertex3f(terrain_points[i+1][j].mX,terrain_points[i+1][j].mY+0.05,terrain_points[i+1][j].mZ);
+            glEnd();
+        }
+    }
+}
+
+
 void display(){
     /* Setting light properties*/
     for(int i = 0; i < 2; i++){
@@ -151,14 +254,24 @@ void display(){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
     gluLookAt(eye[0], eye[1], eye[2], lookAt[0], lookAt[1], lookAt[2],up[0],up[1],up[2]);
-    
-    if (wireFrame % 3 == 0) {
-        DrawTerrainInitMode();
-    }else if (wireFrame % 3 == 1) {
-        drawTerrainWireMode();
-    }else if (wireFrame % 3 == 2) {
-        DrawTerrainPolyWireMode();
+    if (polygan % 2 == 0) {
+        if (wireFrame % 3 == 0) {
+            DrawTerrainInitMode();
+        }else if (wireFrame % 3 == 1) {
+            drawTerrainWireMode();
+        }else if (wireFrame % 3 == 2) {
+            DrawTerrainPolyWireMode();
+        }
+    } else if (polygan % 2 == 1){
+        if (wireFrame % 3 == 0) {
+            DrawTerrainInitTriMode();
+        }else if (wireFrame % 3 == 1) {
+            drawTerrainTriWireMode();
+        }else if (wireFrame % 3 == 2) {
+            DrawTerrainTriPolyWireMode();
+        }
     }
+    
     
     glutSwapBuffers();
 }
@@ -305,6 +418,10 @@ void kbd(unsigned char key, int x, int y){
             else{
                 std::cout << "Changed to Gouraud Shading Mode!\n";
             }
+            break;
+        case 'S':
+            polygan += 1;
+            std::cout << "POLYGAN CHANGED";
             break;
         default:
             break;
