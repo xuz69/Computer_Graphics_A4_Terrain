@@ -220,9 +220,11 @@ void DrawTerrainPolyWireMode(){
 void DrawTerrainInitTriMode(){
     for(int i = 0; i < terrain_size-1; i++){
         for(int j = 0; j < terrain_size -1; j++){
-            // Vec3D face_normal = Vec3D::normal(terrain_points[i][j],terrain_points[i][j+1],terrain_points[i+1][j]); // face normal determined by three points
+            Vec3D face1_normal = Vec3D::normal(terrain_points[i][j],terrain_points[i][j+1],terrain_points[i+1][j]); // face normal determined by three points
+            Vec3D face2_normal = Vec3D::normal(terrain_points[i+1][j],terrain_points[i][j+1],terrain_points[i+1][j+1]); // face normal determined by three points
+            
             glBegin(GL_TRIANGLES);
-            // glNormal3f(face_normal.mX,face_normal.mY,face_normal.mZ);
+            glNormal3f(face1_normal.mX,face1_normal.mY,face1_normal.mZ);
             glColor3f(points_color[i][j],points_color[i][j],points_color[i][j]);
             glVertex3f(terrain_points[i][j].mX,terrain_points[i][j].mY,terrain_points[i][j].mZ);
             
@@ -235,7 +237,7 @@ void DrawTerrainInitTriMode(){
             
             
             // Second Triangle
-            
+            glNormal3f(face2_normal.mX,face2_normal.mY,face2_normal.mZ);
             glColor3f(points_color[i][j+1],points_color[i][j+1],points_color[i][j+1]);
             glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY,terrain_points[i][j+1].mZ);
             
@@ -253,15 +255,16 @@ void DrawTerrainInitTriMode(){
 void drawTerrainTriWireMode(){
     for(int i = 0; i < terrain_size-1; i++){
         for(int j = 0; j < terrain_size -1; j++){
-            //Vec3D face_normal = Vec3D::normal(terrain_points[i][j],terrain_points[i][j+1],terrain_points[i+1][j]);
+            Vec3D face1_normal = Vec3D::normal(terrain_points[i][j],terrain_points[i][j+1],terrain_points[i+1][j]); // face normal determined by three points
+            Vec3D face2_normal = Vec3D::normal(terrain_points[i+1][j],terrain_points[i][j+1],terrain_points[i+1][j+1]); // face normal determined by three points
             glColor3f(0.0f, 1.0f, 0.0f);
             glBegin(GL_LINE_LOOP);
-            //glNormal3f(face_normal.mX,face_normal.mY,face_normal.mZ);
+            glNormal3f(face1_normal.mX,face1_normal.mY,face1_normal.mZ);
             glVertex3f(terrain_points[i][j].mX,terrain_points[i][j].mY,terrain_points[i][j].mZ);
             glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY,terrain_points[i][j+1].mZ);
             glVertex3f(terrain_points[i+1][j].mX,terrain_points[i+1][j].mY,terrain_points[i+1][j].mZ);
             
-            //glNormal3f(face_normal.mX,face_normal.mY,face_normal.mZ);
+            glNormal3f(face2_normal.mX,face2_normal.mY,face2_normal.mZ);
             glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY,terrain_points[i][j+1].mZ);
             glVertex3f(terrain_points[i+1][j+1].mX,terrain_points[i+1][j+1].mY,terrain_points[i+1][j+1].mZ);
             glVertex3f(terrain_points[i+1][j].mX,terrain_points[i+1][j].mY,terrain_points[i+1][j].mZ);
@@ -274,9 +277,10 @@ void drawTerrainTriWireMode(){
 void DrawTerrainTriPolyWireMode(){
     for(int i = 0; i < terrain_size-1; i++){
         for(int j = 0; j < terrain_size -1; j++){
-            //Vec3D face_normal = Vec3D::normal(terrain_points[i][j],terrain_points[i][j+1],terrain_points[i+1][j]);
+            Vec3D face1_normal = Vec3D::normal(terrain_points[i][j],terrain_points[i][j+1],terrain_points[i+1][j]); // face normal determined by three points
+            Vec3D face2_normal = Vec3D::normal(terrain_points[i+1][j],terrain_points[i][j+1],terrain_points[i+1][j+1]); // face normal determined by three points
             glBegin(GL_TRIANGLES);
-            // glNormal3f(face_normal.mX,face_normal.mY,face_normal.mZ);
+            glNormal3f(face1_normal.mX,face1_normal.mY,face1_normal.mZ);
             glColor3f(points_color[i][j],points_color[i][j],points_color[i][j]);
             glVertex3f(terrain_points[i][j].mX,terrain_points[i][j].mY,terrain_points[i][j].mZ);
             
@@ -289,7 +293,7 @@ void DrawTerrainTriPolyWireMode(){
             
             
             // Second Triangle
-            
+            glNormal3f(face2_normal.mX,face2_normal.mY,face2_normal.mZ);
             glColor3f(points_color[i][j+1],points_color[i][j+1],points_color[i][j+1]);
             glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY,terrain_points[i][j+1].mZ);
             
@@ -302,12 +306,12 @@ void DrawTerrainTriPolyWireMode(){
             
             glColor3f(0.0f, 1.0f, 0.0f);
             glBegin(GL_LINE_LOOP);
-            //glNormal3f(face_normal.mX,face_normal.mY,face_normal.mZ);
+            glNormal3f(face1_normal.mX,face1_normal.mY,face1_normal.mZ);
             glVertex3f(terrain_points[i][j].mX,terrain_points[i][j].mY+0.05,terrain_points[i][j].mZ);
             glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY+0.05,terrain_points[i][j+1].mZ);
             glVertex3f(terrain_points[i+1][j].mX,terrain_points[i+1][j].mY+0.05,terrain_points[i+1][j].mZ);
             
-            //glNormal3f(face_normal.mX,face_normal.mY,face_normal.mZ);
+            glNormal3f(face2_normal.mX,face2_normal.mY,face2_normal.mZ);
             glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY+0.05,terrain_points[i][j+1].mZ);
             glVertex3f(terrain_points[i+1][j+1].mX,terrain_points[i+1][j+1].mY+0.05,terrain_points[i+1][j+1].mZ);
             glVertex3f(terrain_points[i+1][j].mX,terrain_points[i+1][j].mY+0.05,terrain_points[i+1][j].mZ);
