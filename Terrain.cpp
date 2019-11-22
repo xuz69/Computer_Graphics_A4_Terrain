@@ -25,13 +25,26 @@ double pi = 3.14159265;
 
 int wireFrame = 0;
 
-int polygan = 0;
-
 bool lightOn = false;
 
 bool is_zero = true;
 
 bool is_flat_shading = false;
+
+bool is_texture = false;
+
+int polygan = 0;
+
+//arrays for image data
+GLubyte* sea;
+GLubyte* mountain;
+GLubyte* grass;
+
+GLuint textures[3];
+
+int width1, height1, max1;
+int width2, height2, max2;
+int width3, height3, max3;
 
 /*
  * Two sets of light properties
@@ -64,20 +77,20 @@ GLdouble eye[] = {0,0,0}; //eye position will be setted in the init() function
 GLdouble lookAt[] = {0,0,0};
 GLdouble up[] = {0,1,0};
 
-
-void init(void){
+float calcHeight(int n, int k){
+    float max = points_color[n][k];
     
-    printf("Welcome to Terrain Generator!\n");
+    for(int i = 0; i< 2; i++){
+        for(int j = 0; j< 2; j++){
+            if(points_color[n+i][k+j] > max){
+                max = points_color[n+i][k+j];
+            }
+        }
+    }
     
-    printf("Please enter the size of Terrain(number between 50 and 300):\n");
-    scanf("%d", &terrain_size);
-    /* eye position based on the terrain size entered by the user*/
-    eye[0] = terrain_size*1.5;
-    eye[1] = 50;
-    eye[2] = terrain_size*1.5;
-    
-    Heightmap(terrain_points,points_color,terrain_size);
+    return max;
 }
+
 
 void DrawTerrainInitMode(){
     for(int i = 0; i < terrain_size-1; i++){
@@ -98,6 +111,39 @@ void DrawTerrainInitMode(){
     }
 }
 
+void drawTerrainWithTexture(){
+    for(int i = 0; i < terrain_size-1; i++){
+        for(int j = 0; j < terrain_size -1; j++){
+            float max_height_percent = calcHeight(i,j);
+            Vec3D face_normal = Vec3D::normal(terrain_points[i][j],terrain_points[i][j+1],terrain_points[i+1][j]); // face normal determined by three points
+            if(max_height_percent<0.55){
+                glBindTexture(GL_TEXTURE_2D, textures[0]);
+            }
+            else if(max_height_percent<0.75 && max_height_percent>=0.55){
+                glBindTexture(GL_TEXTURE_2D, textures[1]);
+            }
+            else{
+                glBindTexture(GL_TEXTURE_2D, textures[2]);
+            }
+            glBegin(GL_QUADS);
+            glNormal3f(face_normal.mX,face_normal.mY,face_normal.mZ);
+            glColor3f(points_color[i][j],points_color[i][j],points_color[i][j]);
+            glTexCoord2f(1, 0);
+            glVertex3f(terrain_points[i][j].mX,terrain_points[i][j].mY,terrain_points[i][j].mZ);
+            glColor3f(points_color[i][j+1],points_color[i][j+1],points_color[i][j+1]);
+            glTexCoord2f(0, 0);
+            glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY,terrain_points[i][j+1].mZ);
+            glColor3f(points_color[i+1][j+1],points_color[i+1][j+1],points_color[i+1][j+1]);
+            glTexCoord2f(0, 1);
+            glVertex3f(terrain_points[i+1][j+1].mX,terrain_points[i+1][j+1].mY,terrain_points[i+1][j+1].mZ);
+            glColor3f(points_color[i+1][j],points_color[i+1][j],points_color[i+1][j]);
+            glTexCoord2f(1, 1);
+            glVertex3f(terrain_points[i+1][j].mX,terrain_points[i+1][j].mY,terrain_points[i+1][j].mZ);
+            glEnd();
+        }
+    }
+}
+
 void drawTerrainWireMode(){
     for(int i = 0; i < terrain_size-1; i++){
         for(int j = 0; j < terrain_size -1; j++){
@@ -108,6 +154,36 @@ void drawTerrainWireMode(){
             glVertex3f(terrain_points[i][j].mX,terrain_points[i][j].mY,terrain_points[i][j].mZ);
             glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY,terrain_points[i][j+1].mZ);
             glVertex3f(terrain_points[i+1][j+1].mX,terrain_points[i+1][j+1].mY,terrain_points[i+1][j+1].mZ);
+            glVertex3f(terrain_points[i+1][j].mX,terrain_points[i+1][j].mY,terrain_points[i+1][j].mZ);
+            glEnd();
+        }
+    }
+}
+
+void drawTerrainWireWithTextureMode(){
+    for(int i = 0; i < terrain_size-1; i++){
+        for(int j = 0; j < terrain_size -1; j++){
+            float max_height_percent = calcHeight(i,j);
+            Vec3D face_normal = Vec3D::normal(terrain_points[i][j],terrain_points[i][j+1],terrain_points[i+1][j]);
+            glColor3f(0.0f, 1.0f, 0.0f);
+            if(max_height_percent<0.5){
+                glBindTexture(GL_TEXTURE_2D, textures[0]);
+            }
+            else if(max_height_percent<0.75 && max_height_percent>=0.5){
+                glBindTexture(GL_TEXTURE_2D, textures[1]);
+            }
+            else{
+                glBindTexture(GL_TEXTURE_2D, textures[2]);
+            }
+            glBegin(GL_LINE_LOOP);
+            glNormal3f(face_normal.mX,face_normal.mY,face_normal.mZ);
+            glTexCoord2f(1, 0);
+            glVertex3f(terrain_points[i][j].mX,terrain_points[i][j].mY,terrain_points[i][j].mZ);
+            glTexCoord2f(0, 0);
+            glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY,terrain_points[i][j+1].mZ);
+            glTexCoord2f(0, 1);
+            glVertex3f(terrain_points[i+1][j+1].mX,terrain_points[i+1][j+1].mY,terrain_points[i+1][j+1].mZ);
+            glTexCoord2f(1, 1);
             glVertex3f(terrain_points[i+1][j].mX,terrain_points[i+1][j].mY,terrain_points[i+1][j].mZ);
             glEnd();
         }
@@ -141,11 +217,10 @@ void DrawTerrainPolyWireMode(){
     }
 }
 
-
 void DrawTerrainInitTriMode(){
     for(int i = 0; i < terrain_size-1; i++){
         for(int j = 0; j < terrain_size -1; j++){
-           // Vec3D face_normal = Vec3D::normal(terrain_points[i][j],terrain_points[i][j+1],terrain_points[i+1][j]); // face normal determined by three points
+            // Vec3D face_normal = Vec3D::normal(terrain_points[i][j],terrain_points[i][j+1],terrain_points[i+1][j]); // face normal determined by three points
             glBegin(GL_TRIANGLES);
             // glNormal3f(face_normal.mX,face_normal.mY,face_normal.mZ);
             glColor3f(points_color[i][j],points_color[i][j],points_color[i][j]);
@@ -254,24 +329,28 @@ void display(){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
     gluLookAt(eye[0], eye[1], eye[2], lookAt[0], lookAt[1], lookAt[2],up[0],up[1],up[2]);
-    if (polygan % 2 == 0) {
-        if (wireFrame % 3 == 0) {
-            DrawTerrainInitMode();
-        }else if (wireFrame % 3 == 1) {
-            drawTerrainWireMode();
-        }else if (wireFrame % 3 == 2) {
-            DrawTerrainPolyWireMode();
-        }
-    } else if (polygan % 2 == 1){
-        if (wireFrame % 3 == 0) {
-            DrawTerrainInitTriMode();
-        }else if (wireFrame % 3 == 1) {
-            drawTerrainTriWireMode();
-        }else if (wireFrame % 3 == 2) {
-            DrawTerrainTriPolyWireMode();
+    if(is_texture){
+        drawTerrainWithTexture();
+    }
+    else{
+        if (polygan % 2 == 0) {
+            if (wireFrame % 3 == 0) {
+                DrawTerrainInitMode();
+            }else if (wireFrame % 3 == 1) {
+                drawTerrainWireMode();
+            }else if (wireFrame % 3 == 2) {
+                DrawTerrainPolyWireMode();
+            }
+        } else if (polygan % 2 == 1){
+            if (wireFrame % 3 == 0) {
+                DrawTerrainInitTriMode();
+            }else if (wireFrame % 3 == 1) {
+                drawTerrainTriWireMode();
+            }else if (wireFrame % 3 == 2) {
+                DrawTerrainTriPolyWireMode();
+            }
         }
     }
-    
     
     glutSwapBuffers();
 }
@@ -334,6 +413,127 @@ void reset(){
     eye[2] = terrain_size*1.5;
     
     
+}
+
+/*
+ *  LoadPPM -- loads the specified ppm file, and returns the image data as a GLubyte
+ *  (unsigned byte) array. Also returns the width and height of the image, and the
+ *  maximum colour value by way of arguments
+ *  usage: GLubyte myImg = LoadPPM("myImg.ppm", &width, &height, &max);
+ */
+GLubyte* LoadPPM(char* file, int* width, int* height, int* max){
+    GLubyte* image;
+    FILE *f;
+    int n, m;
+    int  k, nm;
+    char c;
+    int i;
+    char b[100];
+    float s;
+    int red, green, blue;
+    
+    f = fopen(file,"r");
+    fscanf(f,"%[^\n] ",b);
+    
+    if(b[0]!='P'|| b[1] != '3')
+    {
+        printf("%s is not a PPM file!\n",file);
+        exit(0);
+    }
+    printf("%s is a PPM file\n", file);
+    fscanf(f, "%c",&c);
+    while(c == '#')
+    {
+        fscanf(f, "%[^\n] ", b);
+        printf("%s\n",b);
+        fscanf(f, "%c",&c);
+    }
+    ungetc(c,f);
+    fscanf(f, "%d %d %d", &n, &m, &k);
+    
+    printf("%d rows  %d columns  max value= %d\n",n,m,k);
+    
+    nm = n*m;
+    
+    image = (GLubyte*)malloc(3*sizeof(GLuint)*nm);
+    
+    
+    s=255.0/k;
+    
+    
+    for(i=0;i<nm;i++)
+    {
+        fscanf(f,"%d %d %d",&red, &green, &blue );
+        image[3*nm-3*i-3]=red*s;
+        image[3*nm-3*i-2]=green*s;
+        image[3*nm-3*i-1]=blue*s;
+    }
+    
+    *width = n;
+    *height = m;
+    *max = k;
+    
+    return image;
+}
+
+
+void init(void){
+    
+    printf("Welcome to Terrain Generator!\n");
+    
+    printf("Please enter the size of Terrain(number between 50 and 300):\n");
+    scanf("%d", &terrain_size);
+    /* eye position based on the terrain size entered by the user*/
+    eye[0] = terrain_size*1.5;
+    eye[1] = 50;
+    eye[2] = terrain_size*1.5;
+    
+    Heightmap(terrain_points,points_color,terrain_size);
+    
+    sea = LoadPPM("sea.ppm",&width1, &height1, &max1);
+    mountain = LoadPPM("mountain.ppm",&width2, &height2, &max2);
+    grass = LoadPPM("grass.ppm",&width3, &height3, &max3);
+    
+}
+
+void texturing(){
+    glMatrixMode(GL_TEXTURE);
+    
+    glGenTextures(3, textures);
+    
+    glBindTexture(GL_TEXTURE_2D, textures[0]);
+    
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width1, height1, 0, GL_RGB, GL_UNSIGNED_BYTE, sea);
+    
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    
+    glBindTexture(GL_TEXTURE_2D, textures[1]);
+    
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width2, height2, 0, GL_RGB, GL_UNSIGNED_BYTE, mountain);
+    
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    
+    glBindTexture(GL_TEXTURE_2D, textures[2]);
+    
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width3, height3, 0, GL_RGB, GL_UNSIGNED_BYTE, grass);
+    
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    
+    glClearColor(0, 0, 0, 0);
+    glColor3f(1, 1, 1);
+    
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(45, 1, 1, 100);
 }
 
 void kbd(unsigned char key, int x, int y){
@@ -419,14 +619,29 @@ void kbd(unsigned char key, int x, int y){
                 std::cout << "Changed to Gouraud Shading Mode!\n";
             }
             break;
+        case 'T':
+            is_texture = !is_texture;
+            if(is_texture){
+                glEnable(GL_TEXTURE_2D);
+                std::cout << "Texture Mode!\n";
+            }
+            else{
+                glDisable(GL_TEXTURE_2D);
+                std::cout << "Normal Mode!\n";
+            }
+            break;
         case 'S':
             polygan += 1;
-            std::cout << "POLYGAN CHANGED";
+            std::cout << "POLYGAN CHANGED\n";
             break;
         default:
             break;
     }
 }
+
+
+
+
 
 void FPS(int val){
     glutPostRedisplay();
@@ -466,7 +681,6 @@ void callbackInit(){
 }
 
 int main(int argc, char** argv) {
-    init();
     glutInit(&argc, argv);
     glutInitWindowSize(600,600);
     glutInitWindowPosition(300,300);
@@ -477,6 +691,8 @@ int main(int argc, char** argv) {
     callbackInit();
     
     glEnable(GL_DEPTH_TEST);
+    init();
+    texturing();
     /* using backface culling
      glFrontFace(GL_CCW);
      glEnable(GL_CULL_FACE);
