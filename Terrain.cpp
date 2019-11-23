@@ -14,10 +14,12 @@
 #include <vector>
 #include <math.h>
 #include "Heightmap.hpp"
+#include "Snowman.hpp"
 
 vector< vector<Point3D> > terrain_points;
 vector< vector<float> > points_color;
 
+vector<Snowman> character;
 
 int terrain_size = 200;
 
@@ -324,6 +326,7 @@ void display(){
             }
         }
     }
+    character[0].drawSnowman();
     
     glutSwapBuffers();
 }
@@ -464,6 +467,7 @@ void init(void){
     eye[2] = terrain_size*1.5;
     
     Heightmap(terrain_points,points_color,terrain_size);
+    character.push_back(Snowman(terrain_points));
     
     sea = LoadPPM("sea.ppm",&width1, &height1, &max1);
     mountain = LoadPPM("mountain.ppm",&width2, &height2, &max2);
@@ -509,6 +513,37 @@ void texturing(){
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluPerspective(45, 1, 1, 100);
+}
+
+
+void checkDir(){
+    if(!(character[0].position.mX <= terrain_size/2 -1.5 && character[0].position.mX >= -terrain_size/2 +1.5)){
+        character[0].direction.mX = - character[0].direction.mX;
+    }
+    
+    if(!(character[0].position.mZ <= terrain_size/2 -1.5 && character[0].position.mZ >= -terrain_size/2 +1.5)){
+        character[0].direction.mZ = - character[0].direction.mZ;
+    }
+}
+/* Movement of Snowman character */
+void moveSnowman(){
+    checkDir();
+    /* update x, z coordinate of the position of the charater */
+    character[0].position.mX += character[0].direction.mX;
+    character[0].position.mZ += character[0].direction.mZ;
+    
+    /* update height value of the position of the character */
+    float xIndex = character[0].position.mX + terrain_size/2;
+    float zIndex = character[0].position.mZ + terrain_size/2;
+    
+    float height1 = terrain_points[(int)floor(xIndex)][(int)floor(zIndex)].mY;
+    float height2 = terrain_points[(int)floor(xIndex+1)][(int)floor(zIndex+1)].mY;
+    
+    float proportion = sqrt(pow(character[0].position.mX - floor(character[0].position.mX),2)+pow(character[0].position.mZ - floor(character[0].position.mZ),2));
+    
+    character[0].position.mY = height1 + proportion*(height2-height1);
+    
+    
 }
 
 void kbd(unsigned char key, int x, int y){
@@ -634,6 +669,7 @@ void FPS(int val){
     else{
         glShadeModel(GL_SMOOTH);
     }
+    moveSnowman();
     glutTimerFunc(17, FPS, 0);
 }
 

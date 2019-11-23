@@ -24,7 +24,7 @@ PROGRAM_NAME= Terrain
 run: $(PROGRAM_NAME)
 	./$(PROGRAM_NAME)$(EXEEXT)
 
-$(PROGRAM_NAME): Terrain.o mathLib3D.o Heightmap.o
+$(PROGRAM_NAME): Terrain.o mathLib3D.o Heightmap.o Snowman.o
 	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS)
 
 square: square1.o 
