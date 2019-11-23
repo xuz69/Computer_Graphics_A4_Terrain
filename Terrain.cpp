@@ -160,36 +160,6 @@ void drawTerrainWireMode(){
     }
 }
 
-void drawTerrainWireWithTextureMode(){
-    for(int i = 0; i < terrain_size-1; i++){
-        for(int j = 0; j < terrain_size -1; j++){
-            float max_height_percent = calcHeight(i,j);
-            Vec3D face_normal = Vec3D::normal(terrain_points[i][j],terrain_points[i][j+1],terrain_points[i+1][j]);
-            glColor3f(0.0f, 1.0f, 0.0f);
-            if(max_height_percent<0.5){
-                glBindTexture(GL_TEXTURE_2D, textures[0]);
-            }
-            else if(max_height_percent<0.75 && max_height_percent>=0.5){
-                glBindTexture(GL_TEXTURE_2D, textures[1]);
-            }
-            else{
-                glBindTexture(GL_TEXTURE_2D, textures[2]);
-            }
-            glBegin(GL_LINE_LOOP);
-            glNormal3f(face_normal.mX,face_normal.mY,face_normal.mZ);
-            glTexCoord2f(1, 0);
-            glVertex3f(terrain_points[i][j].mX,terrain_points[i][j].mY,terrain_points[i][j].mZ);
-            glTexCoord2f(0, 0);
-            glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY,terrain_points[i][j+1].mZ);
-            glTexCoord2f(0, 1);
-            glVertex3f(terrain_points[i+1][j+1].mX,terrain_points[i+1][j+1].mY,terrain_points[i+1][j+1].mZ);
-            glTexCoord2f(1, 1);
-            glVertex3f(terrain_points[i+1][j].mX,terrain_points[i+1][j].mY,terrain_points[i+1][j].mZ);
-            glEnd();
-        }
-    }
-}
-
 
 void DrawTerrainPolyWireMode(){
     for(int i = 0; i < terrain_size-1; i++){
@@ -230,7 +200,6 @@ void DrawTerrainInitTriMode(){
             
             glColor3f(points_color[i][j+1],points_color[i][j+1],points_color[i][j+1]);
             glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY,terrain_points[i][j+1].mZ);
-            
             
             glColor3f(points_color[i+1][j],points_color[i+1][j],points_color[i+1][j]);
             glVertex3f(terrain_points[i+1][j].mX,terrain_points[i+1][j].mY,terrain_points[i+1][j].mZ);
@@ -409,6 +378,8 @@ void reset(){
     wireFrame = 0;
     lightOn = false;
     is_zero = true;
+    is_texture = false;
+    polygan = 0;
     
     Heightmap(terrain_points,points_color,terrain_size);// generate a new random terrain using the heightmap generation algorithm
     
