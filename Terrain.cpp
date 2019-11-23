@@ -668,10 +668,10 @@ int main(int argc, char** argv) {
     glEnable(GL_DEPTH_TEST);
     init();
     texturing();
-    /* using backface culling
-     glFrontFace(GL_CCW);
-     glEnable(GL_CULL_FACE);
-     glCullFace(GL_BACK);*/
+    /* using backface culling */
+    glFrontFace(GL_CCW);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
     
     
     glutMainLoop();
