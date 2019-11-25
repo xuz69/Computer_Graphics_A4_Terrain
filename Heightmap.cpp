@@ -67,7 +67,7 @@ Heightmap::Heightmap(vector<vector<Point3D> > & two_d_array_points, vector<vecto
             }
         }
     } else if (algorithm == "FAULT"){
-        int iteration = in_size*2;
+        int iteration = in_size*in_size/4;
         srand((int)time(NULL));
         float displacement = 0.5;
         float displacement_i;
@@ -96,25 +96,24 @@ Heightmap::Heightmap(vector<vector<Point3D> > & two_d_array_points, vector<vecto
                     }
                 }
             }
-            
-            /* set Gray Scale Color */
-            for (int tx = 0; tx < this->size; tx++){
-                for (int tz = 0; tz < this->size; tz++){
-                    if(two_d_array_points[tx][tz].mY > max_height){
-                        max_height = two_d_array_points[tx][tz].mY;
-                    }
-                    if(two_d_array_points[tx][tz].mY < min_height){
-                        min_height = two_d_array_points[tx][tz].mY;
-                    }
+        
+        }
+        /* calculate max and min height of the generated terrain */
+        for (int tx = 0; tx < this->size; tx++){
+            for (int tz = 0; tz < this->size; tz++){
+                if(two_d_array_points[tx][tz].mY > max_height){
+                    max_height = two_d_array_points[tx][tz].mY;
+                }
+                if(two_d_array_points[tx][tz].mY < min_height){
+                    min_height = two_d_array_points[tx][tz].mY;
                 }
             }
-            std::cout << "max height" << max_height << std::endl;
-            std::cout << "min height" << min_height << std::endl;
-            for (int tx = 0; tx < this->size; tx++){
-                for (int tz = 0; tz < this->size; tz++){
-                    float scale = (two_d_array_points[tx][tz].mY - min_height)/(max_height - min_height);
-                    grayscaleColor[tx][tz] = scale;
-                }
+        }
+        /* set Gray Scale Color */
+        for (int tx = 0; tx < this->size; tx++){
+            for (int tz = 0; tz < this->size; tz++){
+                float scale = (two_d_array_points[tx][tz].mY - min_height)/(max_height - min_height);
+                grayscaleColor[tx][tz] = scale;
             }
         }
     }
