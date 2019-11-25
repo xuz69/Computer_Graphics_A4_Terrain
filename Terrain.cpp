@@ -27,6 +27,8 @@ double pi = 3.14159265;
 
 int wireFrame = 0;
 
+int texture = 0;
+
 bool lightOn = false;
 
 bool is_zero = true;
@@ -36,6 +38,8 @@ bool is_flat_shading = false;
 bool is_texture = false;
 
 int polygan = 0;
+
+char* algorithm = "CIRCLE";
 
 //arrays for image data
 GLubyte* sea;
@@ -97,7 +101,8 @@ float calcHeight(int n, int k){
 void DrawTerrainInitMode(){
     for(int i = 0; i < terrain_size-1; i++){
         for(int j = 0; j < terrain_size -1; j++){
-            Vec3D face_normal = Vec3D::normal(terrain_points[i][j],terrain_points[i][j+1],terrain_points[i+1][j]); // face normal determined by three points
+            // face normal determined by three points
+            Vec3D face_normal = Vec3D::normal(terrain_points[i][j],terrain_points[i][j+1],terrain_points[i+1][j]);
             glBegin(GL_QUADS);
             glNormal3f(face_normal.mX,face_normal.mY,face_normal.mZ);
             glColor3f(points_color[i][j],points_color[i][j],points_color[i][j]);
@@ -107,39 +112,6 @@ void DrawTerrainInitMode(){
             glColor3f(points_color[i+1][j+1],points_color[i+1][j+1],points_color[i+1][j+1]);
             glVertex3f(terrain_points[i+1][j+1].mX,terrain_points[i+1][j+1].mY,terrain_points[i+1][j+1].mZ);
             glColor3f(points_color[i+1][j],points_color[i+1][j],points_color[i+1][j]);
-            glVertex3f(terrain_points[i+1][j].mX,terrain_points[i+1][j].mY,terrain_points[i+1][j].mZ);
-            glEnd();
-        }
-    }
-}
-
-void drawTerrainWithTexture(){
-    for(int i = 0; i < terrain_size-1; i++){
-        for(int j = 0; j < terrain_size -1; j++){
-            float max_height_percent = calcHeight(i,j);
-            Vec3D face_normal = Vec3D::normal(terrain_points[i][j],terrain_points[i][j+1],terrain_points[i+1][j]); // face normal determined by three points
-            if(max_height_percent<0.55){
-                glBindTexture(GL_TEXTURE_2D, textures[0]);
-            }
-            else if(max_height_percent<0.75 && max_height_percent>=0.55){
-                glBindTexture(GL_TEXTURE_2D, textures[1]);
-            }
-            else{
-                glBindTexture(GL_TEXTURE_2D, textures[2]);
-            }
-            glBegin(GL_QUADS);
-            glNormal3f(face_normal.mX,face_normal.mY,face_normal.mZ);
-            glColor3f(points_color[i][j],points_color[i][j],points_color[i][j]);
-            glTexCoord2f(1, 0);
-            glVertex3f(terrain_points[i][j].mX,terrain_points[i][j].mY,terrain_points[i][j].mZ);
-            glColor3f(points_color[i][j+1],points_color[i][j+1],points_color[i][j+1]);
-            glTexCoord2f(0, 0);
-            glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY,terrain_points[i][j+1].mZ);
-            glColor3f(points_color[i+1][j+1],points_color[i+1][j+1],points_color[i+1][j+1]);
-            glTexCoord2f(0, 1);
-            glVertex3f(terrain_points[i+1][j+1].mX,terrain_points[i+1][j+1].mY,terrain_points[i+1][j+1].mZ);
-            glColor3f(points_color[i+1][j],points_color[i+1][j],points_color[i+1][j]);
-            glTexCoord2f(1, 1);
             glVertex3f(terrain_points[i+1][j].mX,terrain_points[i+1][j].mY,terrain_points[i+1][j].mZ);
             glEnd();
         }
@@ -244,6 +216,99 @@ void drawTerrainTriWireMode(){
     }
 }
 
+void drawTexture(int txt){
+    if (txt % 5 == 0){
+        glDisable(GL_TEXTURE_2D);
+        is_texture = false;
+        std::cout << "Normal Mode!\n";
+    }else{
+        glEnable(GL_TEXTURE_2D);
+        std::cout << "Texture Mode!\n";
+        for(int i = 0; i < terrain_size-1; i++){
+            for(int j = 0; j < terrain_size -1; j++){
+                float max_height_percent = calcHeight(i,j);
+                Vec3D face_normal = Vec3D::normal(terrain_points[i][j],terrain_points[i][j+1],terrain_points[i+1][j]); // face normal determined by three points
+                if(txt % 5 == 1){
+                    glBindTexture(GL_TEXTURE_2D, textures[0]);
+                }
+                else if(txt % 5 == 2){
+                    glBindTexture(GL_TEXTURE_2D, textures[1]);
+                }
+                else if (txt % 5 == 3){
+                    glBindTexture(GL_TEXTURE_2D, textures[2]);
+                }else if (txt % 5 == 4){
+                    if(max_height_percent<0.55){
+                        glBindTexture(GL_TEXTURE_2D, textures[0]);
+                    }
+                    else if(max_height_percent<0.75 && max_height_percent>=0.55){
+                        glBindTexture(GL_TEXTURE_2D, textures[1]);
+                    }
+                    else{
+                        glBindTexture(GL_TEXTURE_2D, textures[2]);
+                    }
+                }
+                if (polygan % 2 == 0) {
+                    Vec3D face_normal = Vec3D::normal(terrain_points[i][j],terrain_points[i][j+1],terrain_points[i+1][j]);
+                    glBegin(GL_QUADS);
+                    glNormal3f(face_normal.mX,face_normal.mY,face_normal.mZ);
+                    
+                    glColor3f(points_color[i][j],points_color[i][j],points_color[i][j]);
+                    glTexCoord2f(1, 0);
+                    glVertex3f(terrain_points[i][j].mX,terrain_points[i][j].mY,terrain_points[i][j].mZ);
+                    
+                    glColor3f(points_color[i][j+1],points_color[i][j+1],points_color[i][j+1]);
+                    glTexCoord2f(0, 0);
+                    glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY,terrain_points[i][j+1].mZ);
+                    
+                    glColor3f(points_color[i+1][j+1],points_color[i+1][j+1],points_color[i+1][j+1]);
+                    glTexCoord2f(0, 1);
+                    glVertex3f(terrain_points[i+1][j+1].mX,terrain_points[i+1][j+1].mY,terrain_points[i+1][j+1].mZ);
+
+                    glColor3f(points_color[i+1][j],points_color[i+1][j],points_color[i+1][j]);
+                    glTexCoord2f(1, 1);
+                    glVertex3f(terrain_points[i+1][j].mX,terrain_points[i+1][j].mY,terrain_points[i+1][j].mZ);
+                    glEnd();
+                }else {
+                    // face normal determined by three points
+                    Vec3D face1_normal = Vec3D::normal(terrain_points[i][j],terrain_points[i][j+1],terrain_points[i+1][j]);
+                    // face normal determined by three points
+                    Vec3D face2_normal = Vec3D::normal(terrain_points[i+1][j],terrain_points[i][j+1],terrain_points[i+1][j+1]);
+                    glBegin(GL_TRIANGLES);
+                    glNormal3f(face1_normal.mX,face1_normal.mY,face1_normal.mZ);
+                    
+                    glColor3f(points_color[i][j],points_color[i][j],points_color[i][j]);
+                    glTexCoord2f(1, 0);
+                    glVertex3f(terrain_points[i][j].mX,terrain_points[i][j].mY,terrain_points[i][j].mZ);
+                    
+                    glColor3f(points_color[i][j+1],points_color[i][j+1],points_color[i][j+1]);
+                    glTexCoord2f(0, 0);
+                    glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY,terrain_points[i][j+1].mZ);
+                    
+                    glColor3f(points_color[i+1][j],points_color[i+1][j],points_color[i+1][j]);
+                    glTexCoord2f(1, 1);
+                    glVertex3f(terrain_points[i+1][j].mX,terrain_points[i+1][j].mY,terrain_points[i+1][j].mZ);
+                    
+                    // Second Triangle
+                    glNormal3f(face2_normal.mX,face2_normal.mY,face2_normal.mZ);
+                    
+                    glColor3f(points_color[i][j+1],points_color[i][j+1],points_color[i][j+1]);
+                    glTexCoord2f(0, 0);
+                    glVertex3f(terrain_points[i][j+1].mX,terrain_points[i][j+1].mY,terrain_points[i][j+1].mZ);
+                    
+                    glColor3f(points_color[i+1][j+1],points_color[i+1][j+1],points_color[i+1][j+1]);
+                    glTexCoord2f(0, 1);
+                    glVertex3f(terrain_points[i+1][j+1].mX,terrain_points[i+1][j+1].mY,terrain_points[i+1][j+1].mZ);
+                    
+                    glColor3f(points_color[i+1][j],points_color[i+1][j],points_color[i+1][j]);
+                    glTexCoord2f(1, 1);
+                    glVertex3f(terrain_points[i+1][j].mX,terrain_points[i+1][j].mY,terrain_points[i+1][j].mZ);
+                    glEnd();
+                }
+            }
+        }
+        
+    }
+}
 
 void DrawTerrainTriPolyWireMode(){
     for(int i = 0; i < terrain_size-1; i++){
@@ -305,9 +370,8 @@ void display(){
     glLoadIdentity();
     gluLookAt(eye[0], eye[1], eye[2], lookAt[0], lookAt[1], lookAt[2],up[0],up[1],up[2]);
     if(is_texture){
-        drawTerrainWithTexture();
-    }
-    else{
+        drawTexture(texture);
+    }else{
         if (polygan % 2 == 0) {
             if (wireFrame % 3 == 0) {
                 DrawTerrainInitMode();
@@ -326,6 +390,7 @@ void display(){
             }
         }
     }
+    
     character[0].drawSnowman();
     
     glutSwapBuffers();
@@ -383,8 +448,12 @@ void reset(){
     is_zero = true;
     is_texture = false;
     polygan = 0;
+    algorithm = "CIRCLE";
+    texture = 0;
+    glDisable(GL_TEXTURE_2D);
     
-    Heightmap(terrain_points,points_color,terrain_size);// generate a new random terrain using the heightmap generation algorithm
+    
+    Heightmap(terrain_points,points_color,terrain_size, algorithm);// generate a new random terrain using the heightmap generation algorithm
     
     eye[0] = terrain_size*1.5;
     eye[1] = 50;
@@ -466,7 +535,7 @@ void init(void){
     eye[1] = 50;
     eye[2] = terrain_size*1.5;
     
-    Heightmap(terrain_points,points_color,terrain_size);
+    Heightmap(terrain_points,points_color,terrain_size, algorithm);
     character.push_back(Snowman(terrain_points));
     
     sea = LoadPPM("sea.ppm",&width1, &height1, &max1);
@@ -629,21 +698,31 @@ void kbd(unsigned char key, int x, int y){
                 std::cout << "Changed to Gouraud Shading Mode!\n";
             }
             break;
+        case 't':
         case 'T':
-            is_texture = !is_texture;
-            if(is_texture){
-                glEnable(GL_TEXTURE_2D);
-                std::cout << "Texture Mode!\n";
-            }
-            else{
-                glDisable(GL_TEXTURE_2D);
-                std::cout << "Normal Mode!\n";
-            }
+            is_texture = true;
+            texture += 1;
+            drawTexture(texture);
             break;
         case 'S':
             polygan += 1;
             std::cout << "POLYGAN CHANGED\n";
             break;
+        case 'c':
+        case 'C':
+            if (algorithm == "CIRCLE"){
+                terrain_points.clear();
+                points_color.clear();
+                algorithm = "FAULT";
+                Heightmap(terrain_points,points_color,terrain_size, algorithm);
+            }
+                
+            else if (algorithm == "FAULT"){
+                terrain_points.clear();
+                points_color.clear();
+                algorithm = "CIRCLE";
+                Heightmap(terrain_points,points_color,terrain_size, algorithm);
+            }
         default:
             break;
     }

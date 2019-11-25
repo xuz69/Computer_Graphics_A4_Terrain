@@ -9,7 +9,7 @@ using namespace std;
 
 class Heightmap{
 public:
-    Heightmap(vector<vector<Point3D> > & two_d_array_points, vector<vector<float> > & grayscaleColor, int in_size);
+    Heightmap(vector<vector<Point3D> > & two_d_array_points, vector<vector<float> > & grayscaleColor, int in_size, char* algorithm);
     int size;
 };
 
