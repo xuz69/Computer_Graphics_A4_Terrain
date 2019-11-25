@@ -20,8 +20,8 @@ Snowman::Snowman(vector<vector<Point3D> > points){
     this->speed = 0.5;
 
 
-    int ran_x = rand() % points.size();
-    int ran_z = rand() % points.size();
+    int ran_x = rand() % (points.size()-2);
+    int ran_z = rand() % (points.size()-2);
 
     this->position = points[ran_x][ran_z];
     //this->position = Point3D();

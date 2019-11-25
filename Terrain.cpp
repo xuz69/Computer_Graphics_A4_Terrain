@@ -97,7 +97,10 @@ float calcHeight(int n, int k){
     return max;
 }
 
-
+/*
+ * Initial Mode
+ *
+ */
 void DrawTerrainInitMode(){
     for(int i = 0; i < terrain_size-1; i++){
         for(int j = 0; j < terrain_size -1; j++){
@@ -220,10 +223,8 @@ void drawTexture(int txt){
     if (txt % 5 == 0){
         glDisable(GL_TEXTURE_2D);
         is_texture = false;
-        std::cout << "Normal Mode!\n";
     }else{
         glEnable(GL_TEXTURE_2D);
-        std::cout << "Texture Mode!\n";
         for(int i = 0; i < terrain_size-1; i++){
             for(int j = 0; j < terrain_size -1; j++){
                 float max_height_percent = calcHeight(i,j);
@@ -702,7 +703,12 @@ void kbd(unsigned char key, int x, int y){
         case 'T':
             is_texture = true;
             texture += 1;
-            drawTexture(texture);
+            if(texture % 5 == 0){
+                std::cout << "Normal Mode" << std::endl;
+            }
+            else{
+                std::cout << "Texture Mode " << texture % 5 <<std::endl;
+            }
             break;
         case 'S':
             polygan += 1;
