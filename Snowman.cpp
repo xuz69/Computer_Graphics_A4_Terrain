@@ -13,13 +13,16 @@
 #include <cmath>
 
 
-
+/*
+ * Snowman
+ * Creating snow man with size, speed, position, and direction
+ */
 Snowman::Snowman(vector<vector<Point3D> > points){
     this->size = 1;
 
     this->speed = 0.5;
 
-
+    // Snow man's position and direction are random variables
     int ran_x = rand() % (points.size()-2);
     int ran_z = rand() % (points.size()-2);
 
@@ -30,6 +33,10 @@ Snowman::Snowman(vector<vector<Point3D> > points){
     this->direction = Vec3D(ran_dir_x,0,ran_dir_z).normalize().multiply(this->speed);
 };
 
+/*
+ * drawSnowman
+ * displaying the snow man
+ */
 void Snowman::drawSnowman(){
     glTranslatef(0,this->size,0);
     //glScalef(5,5,5);
@@ -83,7 +90,5 @@ void Snowman::drawSnowman(){
         glPopMatrix();
 
     glPopMatrix();
-
-
 
 };
