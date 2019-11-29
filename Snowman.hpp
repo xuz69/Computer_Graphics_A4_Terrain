@@ -11,11 +11,11 @@ using namespace std;
 class Snowman{
 public:
     Snowman(vector<vector<Point3D> > points);
-    int size;
-    float speed;
-    Vec3D direction;
-    Point3D position;
-    void drawSnowman();
+    int size; //size of the snowman
+    float speed; //moving speed of the snowman
+    Vec3D direction; //moving direction of the snowman
+    Point3D position; //position of the snowman
+    void drawSnowman(); //function to draw the snowman
 };
 
 #endif

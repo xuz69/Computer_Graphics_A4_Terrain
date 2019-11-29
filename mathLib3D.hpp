@@ -10,7 +10,7 @@ public:
     float mX;
     float mY;
     float mZ;
-    
+
     float distanceTo(Point3D other);
     float fastDistanceTo(Point3D other);
 };
@@ -22,7 +22,7 @@ public:
     float mX;
     float mY;
     float mZ;
-    
+
     float length();
     Vec3D normalize();
     Vec3D multiply(float scalar);

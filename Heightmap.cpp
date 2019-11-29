@@ -80,13 +80,12 @@ Heightmap::Heightmap(vector<vector<Point3D> > & two_d_array_points, vector<vecto
                     }
                 }
             }
-            /* set Gray Scale Color */
-            for (int tx = 0; tx < this->size; tx++){
-                for (int tz = 0; tz < this->size; tz++){
-                    float scale = (two_d_array_points[tx][tz].mY - min_height)
-                                    /(max_height - min_height);
-                    grayscaleColor[tx][tz] = scale;
-                }
+        }
+        /* set Gray Scale Color */
+        for (int tx = 0; tx < this->size; tx++){
+            for (int tz = 0; tz < this->size; tz++){
+                float scale = (two_d_array_points[tx][tz].mY - min_height)/(max_height - min_height);
+                grayscaleColor[tx][tz] = scale;
             }
         }
     }// Fault Algorithm

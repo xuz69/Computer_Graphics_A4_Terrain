@@ -27,7 +27,7 @@ Snowman::Snowman(vector<vector<Point3D> > points){
     int ran_z = rand() % (points.size()-2);
 
     this->position = points[ran_x][ran_z];
-    //this->position = Point3D();
+    //moving direction is random
     float ran_dir_x = ((float)rand()/(float)RAND_MAX)*2 - 1 ;
     float ran_dir_z = ((float)rand()/(float)RAND_MAX)*2 - 1 ;
     this->direction = Vec3D(ran_dir_x,0,ran_dir_z).normalize().multiply(this->speed);
